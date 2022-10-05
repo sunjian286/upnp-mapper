@@ -161,4 +161,8 @@ public class UPnP {
         return defaultGW.getGatewayIP();
     }
 
+    public static Gateway getGateway() {
+        if(!isUPnPAvailable()) return null;
+        return defaultGW;
+    }
 }

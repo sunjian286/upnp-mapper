@@ -18,14 +18,6 @@
  */
 package com.dosse.upnp;
 
-import java.net.HttpURLConnection;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -33,11 +25,20 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.net.HttpURLConnection;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 /**
  * 
  * @author Federico
  */
-class Gateway {
+public class Gateway {
 
     private Inet4Address iface;
     private InetAddress routerip;
@@ -149,6 +150,45 @@ class Gateway {
             return null;
         }
     }
+
+    public boolean openPort(OpenPortParam openPortParam) {
+        int externalPort = openPortParam.getExternalPort();
+        int localPort = openPortParam.getLocalPort();
+        if (externalPort < 0 || externalPort > 65535) {
+            throw new IllegalArgumentException("Invalid external port");
+        }
+        if (localPort < 0 || localPort > 65535) {
+            throw new IllegalArgumentException("Invalid local port");
+        }
+        String localIP = openPortParam.getLocalIP();
+        boolean udp = openPortParam.isUDP();
+        String description = openPortParam.getDescription();
+        int leaseDuration = openPortParam.getLeaseDuration();
+
+        if(localIP == null){
+            localIP = iface.getHostAddress();
+        }
+        if(description == null){
+            description = "WaifUPnP";
+        }
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("NewRemoteHost", "");
+        params.put("NewProtocol", udp ? "UDP" : "TCP");
+        params.put("NewInternalClient", localIP);
+        params.put("NewExternalPort", "" + externalPort);
+        params.put("NewInternalPort", "" + localPort);
+        params.put("NewEnabled", "1");
+        params.put("NewPortMappingDescription", description);
+        params.put("NewLeaseDuration", "" + leaseDuration);
+        try {
+            Map<String, String> r = command("AddPortMapping", params);
+            return r.get("errorCode") == null;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
 
     public boolean openPort(int port, boolean udp) {
         if (port < 0 || port > 65535) {
