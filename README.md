@@ -1,4 +1,24 @@
-# WaifUPnP 
+# upnp-mapper 
+
+(based on [WaifUPnP](https://github.com/adolfintel/WaifUPnP)) 
+
+UPnP Port Forwarding for Java couldn't be any easier!
+## Usage
+
+```java
+Gateway gateway = UPnP.getGateway();//discover your gateway
+String localIP = "192.168.18.99";//your device ip in LAN
+
+OpenPortParam openPortParam = new OpenPortParam();
+openPortParam.setExternalPort(51090);//port exposed to external
+openPortParam.setLocalPort(1090);//your device port in LAN
+openPortParam.setDescription("51090");//description
+openPortParam.setUDP(false);//udp port or not
+openPortParam.setLocalIP(localIP);//your device ip in LAN
+
+gateway.openPort(openPortParam);//mapping
+```
+#[WaifUPnP](https://github.com/adolfintel/WaifUPnP)
 
 UPnP Port Forwarding for Java couldn't be any easier!
 
